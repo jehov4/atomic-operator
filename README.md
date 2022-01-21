@@ -1,9 +1,10 @@
-[![Testing atomic-operator on Ubuntu](https://github.com/swimlane/atomic-operator/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/swimlane/atomic-operator/actions/workflows/ubuntu.yml) ![](./images/ubuntu_support.svg)
-[![Testing atomic-operator on Windows](https://github.com/swimlane/atomic-operator/actions/workflows/windows.yml/badge.svg)](https://github.com/swimlane/atomic-operator/actions/workflows/windows.yml) ![](./images/windows_support.svg)
-[![Testing atomic-operator on macOS](https://github.com/swimlane/atomic-operator/actions/workflows/macos.yml/badge.svg)](https://github.com/swimlane/atomic-operator/actions/workflows/macos.yml) ![](./images/macos_support.svg)
-![](./images/coverage.svg)
-
 # atomic-operator
+
+Fork of (swimlane/atomic-operator)[https://github.com/swimlane/atomic-operator]
+
+Added support for:
+- Selecting tests by MITRE Technique ID
+- Specifying Repo URL
 
 ![](images/atomic-operator-logo.svg)
 

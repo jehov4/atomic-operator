@@ -157,7 +157,7 @@ class AtomicOperator(Base):
                   prompt_for_input_args=False, return_atomics=False, config_file=None, 
                   config_file_only=False, hosts=[], username=None, password=None, 
                   ssh_key_path=None, private_key_string=None, verify_ssl=False, 
-                  ssh_port=22, ssh_timeout=5, *args, **kwargs) -> None:
+                  ssh_port=22, ssh_timeout=5, test_name=None, *args, **kwargs) -> None:
         """The main method in which we run Atomic Red Team tests.
 
         Args:
@@ -183,6 +183,7 @@ class AtomicOperator(Base):
             verify_ssl (bool, optional): Whether or not to verify ssl when connecting over RDP (windows). Defaults to False.
             ssh_port (int, optional): SSH port for authentication of remote connections. Defaults to 22.
             ssh_timeout (int, optional): SSH timeout for authentication of remote connections. Defaults to 5.
+            testname (str, optional): If given, together with technique ID selects test to be run
             kwargs (dict, optional): If provided, keys matching inputs for a test will be replaced. Default is None.
 
         Raises:
@@ -221,7 +222,8 @@ class AtomicOperator(Base):
                 verify_ssl=verify_ssl,
                 ssh_port=ssh_port,
                 ssh_timeout=ssh_timeout,
-                select_tests=select_tests
+                select_tests=select_tests,
+                test_name=test_name
             )
         self.__run_list = self.__config_parser.run_list
 

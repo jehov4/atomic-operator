@@ -10,7 +10,7 @@ class ConfigParser(Base):
     def __init__(self, config_file=None, techniques=None, test_guids=None, 
                        host_list=None, username=None, password=None,
                        ssh_key_path=None, private_key_string=None, verify_ssl=False,
-                       ssh_port=22, ssh_timeout=5, select_tests=False
+                       ssh_port=22, ssh_timeout=5, select_tests=False, test_name=None
                 ):
         """Parses a provided config file as well as parameters to build a run list
         
@@ -68,6 +68,8 @@ class ConfigParser(Base):
         self.techniques = techniques
         self.test_guids = test_guids
         self.select_tests = select_tests
+        ## Test Selection via Technique + Name
+        self.test_name = test_name
         self.__host_list = []
         if host_list:
             for host in self.parse_input_lists(host_list):
@@ -154,42 +156,61 @@ class ConfigParser(Base):
                     return_list.append(item)
         return return_list
 
-    def __build_run_list(self, techniques=None, test_guids=None, host_list=None, select_tests=False):
+    def __build_run_list(self, techniques=None, test_guids=None, host_list=None, select_tests=False, test_name=None):
         __run_list = []
         self.__loaded_techniques = Loader().load_techniques()
-        if test_guids:
-            for key,val in self.__loaded_techniques.items():
-                test_list = []
-                for test in val.atomic_tests:
-                    if test.auto_generated_guid in test_guids:
-                        test_list.append(test)
-                if test_list:
-                    temp = self.__loaded_techniques[key]
-                    temp.atomic_tests = test_list
-                    temp.hosts = host_list
-                    __run_list.append(temp)
-        if techniques:
-            if 'all' not in techniques:
-                for technique in techniques:
-                    if self.__loaded_techniques.get(technique):
-                        temp = self.__loaded_techniques[technique]
-                        if select_tests:
-                            temp.atomic_tests = self.select_atomic_tests(
-                                self.__loaded_techniques[technique]
-                            )
+        ## Test Selection via technique + Name
+        if len(techniques) == 1 and test_name:
+            technique_id = techniques[0]
+            if self.__loaded_techniques.get(technique_id):
+                temp = self.__loaded_techniques[technique_id]
+                ## old
+                # if select_tests:
+                #     temp.atomic_tests = self.select_atomic_tests(
+                #         self.__loaded_techniques[technique]
+                #     )
+                ##
+                ## select test out of technique based on name
+                for test in temp.atomic_tests:
+                    if test.name == test_name:
+                        temp.atomic_tests = test
+                        break
+                temp.hosts = host_list
+                __run_list.append(temp)
+        else:    
+            if test_guids:
+                for key,val in self.__loaded_techniques.items():
+                    test_list = []
+                    for test in val.atomic_tests:
+                        if test.auto_generated_guid in test_guids:
+                            test_list.append(test)
+                    if test_list:
+                        temp = self.__loaded_techniques[key]
+                        temp.atomic_tests = test_list
                         temp.hosts = host_list
                         __run_list.append(temp)
-            elif 'all' in techniques and not test_guids:
-                for key,val in self.__loaded_techniques.items():
-                    temp = self.__loaded_techniques[key]
-                    if select_tests:
-                            temp.atomic_tests = self.select_atomic_tests(
-                                self.__loaded_techniques[key]
-                            )
-                    temp.hosts = host_list
-                    __run_list.append(temp)
-            else:
-                pass
+            if techniques:
+                if 'all' not in techniques:
+                    for technique in techniques:
+                        if self.__loaded_techniques.get(technique):
+                            temp = self.__loaded_techniques[technique]
+                            if select_tests:
+                                temp.atomic_tests = self.select_atomic_tests(
+                                    self.__loaded_techniques[technique]
+                                )
+                            temp.hosts = host_list
+                            __run_list.append(temp)
+                elif 'all' in techniques and not test_guids:
+                    for key,val in self.__loaded_techniques.items():
+                        temp = self.__loaded_techniques[key]
+                        if select_tests:
+                                temp.atomic_tests = self.select_atomic_tests(
+                                    self.__loaded_techniques[key]
+                                )
+                        temp.hosts = host_list
+                        __run_list.append(temp)
+                else:
+                    pass
         return __run_list
 
     @property
@@ -257,7 +278,8 @@ class ConfigParser(Base):
             techniques=self.parse_input_lists(self.techniques) if self.techniques else [],
             test_guids=self.parse_input_lists(self.test_guids) if self.test_guids else [],
             host_list=self.__host_list,
-            select_tests=self.select_tests
+            select_tests=self.select_tests,
+            test_name=self.test_name
             ):
             __run_list.append(item)
         return __run_list

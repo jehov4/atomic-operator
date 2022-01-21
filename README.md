@@ -1,3 +1,4 @@
+-------------------------------------------------------------------------------------------
 # What this is:
 
 Fork of (swimlane/atomic-operator)[https://github.com/swimlane/atomic-operator]
@@ -6,7 +7,8 @@ Added support for:
 - Selecting tests by MITRE Technique ID
 - Specifying Repo URL
 
-# Original Readme:
+Original *README* below
+-------------------------------------------------------------------------------------------
 # atomic-operator
 
 

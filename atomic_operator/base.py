@@ -45,7 +45,10 @@ class Base(metaclass=LoggingBase):
         Returns:
             str: A string of the location the data was saved to.
         """
-        response = requests.get(Base.ATOMIC_RED_TEAM_REPO, stream=True, **kwargs)
+
+        # Variable Repo selection via kw args
+        art_repo = kwargs.get('repo', None) if kwargs.get('repo', None) else 'https://github.com/redcanaryco/atomic-red-team/zipball/master/'
+        response = requests.get(art_repo, stream=True, **kwargs)
         z = zipfile.ZipFile(BytesIO(response.content))
         with zipfile.ZipFile(BytesIO(response.content)) as zf:
             for member in zf.infolist():

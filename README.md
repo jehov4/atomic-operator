@@ -4,7 +4,7 @@
 Fork of [swimlane/atomic-operator](https://github.com/swimlane/atomic-operator)
 
 Added support for:
-- Selecting tests by MITRE Technique ID
+- Selecting tests by MITRE ATT&CK Technique ID
 - Specifying Repo URL
 
 Original *README* below

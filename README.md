@@ -8,6 +8,7 @@ Added support for:
 - Specifying Repo URL
 
 Original *README* below
+
 -------------------------------------------------------------------------------------------
 # atomic-operator
 

@@ -132,7 +132,7 @@ class AtomicOperator(Base):
         obj = AtomicOperator if not method else getattr(self, method)
         return HelpText(self.run,trace=FireTrace(obj))
 
-    def get_atomics(self, desintation=os.getcwd(), **kwargs):
+    def get_atomics(self, desintation=os.getcwd(), art_repo="https://github.com/redcanaryco/atomic-red-team/zipball/master/", **kwargs):
         """Downloads the RedCanary atomic-red-team repository to your local system.
 
         Args:
@@ -147,6 +147,7 @@ class AtomicOperator(Base):
         desintation = kwargs.pop('destination') if kwargs.get('destination') else desintation
         folder_name = self.download_atomic_red_team_repo(
             save_path=desintation, 
+            art_repo=art_repo,
             **kwargs
         )
         return os.path.join(desintation, folder_name)

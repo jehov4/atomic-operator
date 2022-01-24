@@ -36,7 +36,7 @@ class Base(metaclass=LoggingBase):
         '${{{0}}}'
     ]
 
-    def download_atomic_red_team_repo(self, save_path, **kwargs) -> str:
+    def download_atomic_red_team_repo(self, save_path, art_repo, **kwargs) -> str:
         """Downloads the Atomic Red Team repository from github
 
         Args:
@@ -46,8 +46,6 @@ class Base(metaclass=LoggingBase):
             str: A string of the location the data was saved to.
         """
 
-        # Variable Repo selection via kw args
-        art_repo = kwargs.get('repo', None) if kwargs.get('repo', None) else 'https://github.com/redcanaryco/atomic-red-team/zipball/master/'
         # response = requests.get(Base.ATOMIC_RED_TEAM_REPO, stream=True, **kwargs)
         response = requests.get(art_repo, stream=True, **kwargs)
         z = zipfile.ZipFile(BytesIO(response.content))

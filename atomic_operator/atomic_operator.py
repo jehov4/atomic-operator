@@ -158,7 +158,7 @@ class AtomicOperator(Base):
                   prompt_for_input_args=False, return_atomics=False, config_file=None, 
                   config_file_only=False, hosts=[], username=None, password=None, 
                   ssh_key_path=None, private_key_string=None, verify_ssl=False, 
-                  ssh_port=22, ssh_timeout=5, test_name=None, *args, **kwargs) -> None:
+                  ssh_port=22, ssh_timeout=5, test_name=None, dry=False, *args, **kwargs) -> None:
         """The main method in which we run Atomic Red Team tests.
 
         Args:
@@ -185,10 +185,13 @@ class AtomicOperator(Base):
             ssh_port (int, optional): SSH port for authentication of remote connections. Defaults to 22.
             ssh_timeout (int, optional): SSH timeout for authentication of remote connections. Defaults to 5.
             testname (str, optional): If given, together with technique ID selects test to be run
+            dry (bool, optional): When true, function runs in dry run mode, returning the tests that were selected.
             kwargs (dict, optional): If provided, keys matching inputs for a test will be replaced. Default is None.
 
         Raises:
             ValueError: If a provided technique is unknown we raise an error.
+        Returns:
+            run_list
         """
         if kwargs.get('help'):
             return self.help(method='run')
@@ -228,14 +231,18 @@ class AtomicOperator(Base):
             )
         self.__run_list = self.__config_parser.run_list
 
-        __return_atomics = []
-        for item in self.__run_list:
-            if return_atomics:
-                __return_atomics.append(item)
-            elif kwargs.get('kwargs'):
-                self.__run_technique(item, **kwargs.get('kwargs'))
-            else:
-                self.__run_technique(item)
-        if return_atomics and __return_atomics:
-            return __return_atomics
-        return self.__test_responses
+        if not dry:
+            __return_atomics = []
+            for item in self.__run_list:
+                if return_atomics:
+                    __return_atomics.append(item)
+                elif kwargs.get('kwargs'):
+                    self.__run_technique(item, **kwargs.get('kwargs'))
+                else:
+                    self.__run_technique(item)
+            if return_atomics and __return_atomics:
+                return __return_atomics
+            return self.__test_responses
+        else:
+            return self.__run_list
+            

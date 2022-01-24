@@ -1,4 +1,5 @@
 import os
+import copy
 from .base import Base
 from .utils.exceptions import MalformedFile
 from .models import Host
@@ -163,7 +164,7 @@ class ConfigParser(Base):
         if len(techniques) == 1 and test_name:
             technique_id = techniques[0]
             if self.__loaded_techniques.get(technique_id):
-                temp = self.__loaded_techniques[technique_id]
+                temp = copy.deepcopy(self.__loaded_techniques[technique_id])
                 ## old
                 # if select_tests:
                 #     temp.atomic_tests = self.select_atomic_tests(
@@ -171,10 +172,13 @@ class ConfigParser(Base):
                 #     )
                 ##
                 ## select test out of technique based on name
+                found = False
                 for test in temp.atomic_tests:
                     if test.name == test_name:
                         temp.atomic_tests = test
                         break
+                if not found:
+                    temp.atomic_tests = []
                 temp.hosts = host_list
                 __run_list.append(temp)
         else:    

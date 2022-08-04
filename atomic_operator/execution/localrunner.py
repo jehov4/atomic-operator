@@ -18,18 +18,29 @@ class LocalRunner(Runner):
         self.test_path = test_path
         self.__local_system_platform = self.get_local_system_platform()
 
-    def execute_process(self, command, executor=None, host=None, cwd=None):
+    def execute_process(self, command, executor=None, host=None, cwd=None, elevation_required=False):
         """Executes commands using subprocess
 
         Args:
             executor (str): An executor or shell used to execute the provided command(s)
             command (str): The commands to run using subprocess
             cwd (str): A string which indicates the current working directory to run the command
+            elevation_required (bool): Whether or not elevation is required
 
         Returns:
             tuple: A tuple of either outputs or errors from subprocess
         """
-        command = self._replace_command_string(command, self.CONFIG.atomics_path, input_arguments=self.test.input_arguments)
+        if elevation_required:
+            if executor in ['powershell']:
+                command = f"Start-Process PowerShell -Verb RunAs; {command}"
+            elif executor in ['cmd', 'command_prompt']:
+                command = f'cmd.exe /c "{command}"'
+            elif executor in ['sh', 'bash', 'ssh']:
+                command = f"sudo {command}"
+            else:
+                self.__logger.warning(f"Elevation is required but the executor '{executor}' is unknown!")
+        command = self._replace_command_string(command, self.CONFIG.atomics_path, input_arguments=self.test.input_arguments, executor=executor)
+        executor = self.command_map.get(executor).get(self.__local_system_platform)
         p = subprocess.Popen(
             executor, 
             shell=False, 
@@ -71,4 +82,4 @@ class LocalRunner(Runner):
         return __executor
 
     def start(self):
-        return self.execute(executor=self._get_executor_command())
+        return self.execute(executor=self.test.executor.name)

@@ -1,9 +1,9 @@
 import os
 import subprocess
-from .runner import Runner
+from .base import ExecutionBase
 
 
-class AWSRunner(Runner):
+class AWSRunner(ExecutionBase):
     """Runs AtomicTest objects against AWS using the aws-cli
     """
 
@@ -25,17 +25,29 @@ class AWSRunner(Runner):
             self.__logger.warning(response['error'])
         return response
 
-    def execute_process(self, command, executor=None, host=None, cwd=None):
+    def execute_process(self, command, executor=None, host=None, cwd=None, elevation_required=False):
         """Executes commands using subprocess
 
         Args:
             executor (str): An executor or shell used to execute the provided command(s)
             command (str): The commands to run using subprocess
             cwd (str): A string which indicates the current working directory to run the command
+            elevation_required (bool): Whether or not elevation is required
 
         Returns:
             tuple: A tuple of either outputs or errors from subprocess
         """
+        if elevation_required:
+            if executor in ['powershell']:
+                command = f"Start-Process PowerShell -Verb RunAs; {command}"
+            elif executor in ['cmd', 'command_prompt']:
+                command = f'{self.command_map.get(executor).get(self.__local_system_platform)} /c "{command}"'
+            elif executor in ['sh', 'bash', 'ssh']:
+                command = f"sudo {command}"
+            else:
+                self.__logger.warning(f"Elevation is required but the executor '{executor}' is unknown!")
+        command = self._replace_command_string(command, self.CONFIG.atomics_path, input_arguments=self.test.input_arguments, executor=executor)
+        executor = self.command_map.get(executor).get(self.__local_system_platform)
         p = subprocess.Popen(
             executor, 
             shell=False, 
@@ -78,5 +90,5 @@ class AWSRunner(Runner):
     def start(self):
         response = self.__check_for_aws_cli()
         if not response.get('error'):
-            return self.execute(executor=self._get_executor_command())
+            return self.execute(executor=self.test.executor.name)
         return response

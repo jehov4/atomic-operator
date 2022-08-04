@@ -93,7 +93,7 @@ pip3 install --upgrade pip
 pip3 install setuptools_rust
 
 # Back to our regularly scheduled programming . . .  
-
+pip install -r requirements.txt
 python setup.py install
 ```
 
@@ -102,6 +102,7 @@ python setup.py install
 ```bash
 git clone https://github.com/swimlane/atomic-operator.git
 cd atomic-operator
+pip install -r requirements.txt
 python setup.py install
 ```
 
